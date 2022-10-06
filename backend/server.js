@@ -1,15 +1,10 @@
 const express = require('express')
 const bodyParser = require('body-parser')
-const path = require('path');
-const JSON = require('json')
 const app = express()
 const port = 3000
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(express.static(path.resolve(__dirname + './../client/dist')))
-var cors = require("cors");
-app.use(cors());
-const database = require('./database.js').table
-
+const {addressSet} = require('./utils')
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
 app.use('*', (req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PATCH, DELETE');
@@ -18,26 +13,28 @@ app.use('*', (req, res, next) => {
   });
 
 
-app.get('/doctors', (req, res) => {
-  // let body = JSON.stringify(req.body || {})
-  //   database.doctors.getDoctor(JSON.parse(body))
-  //   .then((doctors) => {
-  //     res.status(200).send(doctors)
-  //   })
-  //   .catch((error) => {
-  //     res.status(500).send(error)
-  //   })
-  res.end
+app.get('/addresses', (req, res) => {
+  const location = req.body.location
+  res.send(addressSet.getAddress(location))
 })
-// app.get('/', function (req, res) {
+app.post('/addresses', (req, res) => {
+  const address = req.body
+  addressSet.addAddress(address)
+  res.end()
+});
 
-//     res.write(__dirname + '/../client/dist')
-//     res.end()
-// });
+app.patch('/addresses/:addressId',(req, res) => {
+  const addressId = parseInt(req.params.addressId)
+  const updates = req.body
+  addressSet.editAddress(addressId, updates)
+  res.end()
+});
 
-// app.get('/', function(req, res){
-//     res.sendFile(path.resolve(__dirname+ '/../client/dist/index.html')); // change the path to your index.html
-// });
+app.delete('/addresses/:addressId', (req, res) =>  {
+  const addressId = parseInt(req.params.addressId)
+  addressSet.deleteAddress(addressId)
+  res.end()
+});
 
 app.listen(port, () => {
     console.log('Server started at http://localhost:' + port);
