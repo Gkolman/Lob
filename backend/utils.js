@@ -84,6 +84,7 @@ class AddressTree {
 			this.currentIndex = i
 			this.addAddress(addresses[i])
 		}
+    this.currentIndex++
 	}
   /*
     Takes a prefix of or an entire location and returns a list of addresses
